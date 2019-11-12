@@ -66,7 +66,8 @@ dat.f=dat %>%
   mutate(beach_part_drop_out = recode(beach_part_drop_out, "1"="dropped","2"="not-dropped"),
          beach_last_visit    = recode(beach_last_visit, "1"="3rd_tri","2"="2wks","3"="2mon","4"="6mon","5"="12mon"),
          beachphone_mod = recode(beachphone_mod, "1"="vaginally","2"="c-section"),
-         mom2wk_mod    = recode(mom2wk_mod, "1"="vaginally","2"="c-section")) %>%
+         mom2wk_mod    = recode(mom2wk_mod, "1"="vaginally","2"="c-section"),
+         delivery_locations = recode(mom3t_delivery_location, "1"= "UF Shands","2"="North Florida Regional","3"="other", "4"="I don't know","NA"="dropped participant didn't provide location"))%>%
   group_by(test_id) %>%
   arrange(mom3t_prepreg_bmi) %>%
   mutate(prepreg_bmi= dplyr::first(mom3t_prepreg_bmi)) %>%
@@ -102,15 +103,31 @@ p + ggtitle("Dropped participants last study visit") +
 `
 ##Delivery Location of dropped participants:``
 ```{r echo=FALSE}
-bar_chart=dat %>% 
-  group_by(mom3t_delivery_location) %>% 
-  tally()
-# sort study visits by making variable a factor
-bar_chart$mom3t_delivery_location <- factor(bar_chart$mom3t_delivery_location,levels = c("UF Shands", "North Flordia Regional", "participant didn't provide location"))
-# plot, add counts to figure
-p=ggplot(data=bar_chart, aes(x=mom3t_delivery_location, y=n)) + geom_bar(colour="black", stat="identity") + geom_text(aes(label=n), vjust=-0.4) 
-p + ggtitle("Delivery Location of dropped participants") +
-  xlab("Location") + ylab("counts")
+bar_chart=dat.f %>% 
+  select(delivery_locations,test_id,beach_last_visit2)%>%
+  group_by(delivery_locations, test_id, beach_last_visit2) %>% 
+  summarize(count=n())
+
+g <- ggplot(bar_chart, aes(delivery_locations, count))
+g+ geom_bar(stat="identity", width =0.5, fill="tomato2")+
+  labs(title="dropped partcipant delivery location")
+## sort study visits by making variable a factor
+#
+#
+#
+## plot, add counts to figure
+#p=ggplot(bar_chart, aes(x=beach_last_visit2, y=count, #mom3t_delivery_location))+ scale_fill_brewer(palette = "spectral")
+#p + geom_histogram(aes(fill=factor(mom3t_delivery_location)), #stat="identity",
+#                 bin=24,
+#                 col="black",
+#                 size=.1)
+#                
+
+
+
+
+
+
 ```
 
 ##Pre-pregnant BMI of dropped participants:
